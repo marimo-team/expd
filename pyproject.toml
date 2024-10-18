@@ -1,0 +1,192 @@
+[project]
+name = "expd"
+dynamic = ["version"]
+description = "A framework for running computational experiments, powered by marimo notebooks"
+readme = "README.md"
+requires-python = ">=3.9"
+dependencies = [
+    "click>=8.0",
+    "annotated-types>=0.7.0",
+    "marimo>=0.9.10",
+    "pynvml>=11.5.3",
+    "psutil>=6.0.0",
+]
+
+[project.optional-dependencies]
+artifacts = [
+    "numpy>=2.0.0",
+    "scipy>=1.13.0",
+    "torch>=2.0.0",
+    "pillow>=10.4.0",
+]
+dev = [
+    "mypy~=1.12.0",
+    "pytest~=8.3.3",
+    "ruff~=0.6.3",
+    "types-psutil>=6.0.0.20241011",
+    # Typo checking
+    "typos~=1.23.6",
+]
+
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project.scripts]
+expd = "expd._cli:main"
+
+[tool.hatch.version]
+path = "src/expd/__init__.py"
+
+[tool.hatch.build.targets.sdist]
+include = ["/src/expd"]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/expd"]
+
+# Override the default uv version to use the latest version
+#[tool.hatch.envs.hatch-uv]
+#dependencies = ["uv>=0.4.17"]
+
+[tool.hatch.envs.default]
+features = ["dev", "artifacts"]
+python = "3.12"
+installer = "uv"
+dependencies = [
+    "uv>=0.4.17", # so we can bump the version used by hatch
+]
+
+[tool.hatch.envs.hatch-test]
+extra-dependencies = [
+  "hypothesis~=6.112.1"
+]
+
+[[tool.hatch.envs.hatch-test.matrix]]
+python = ["3.12"]
+
+[tool.hatch.envs.default.scripts]
+lint = "ruff check --fix"
+format = "ruff format src/expd"
+check = "mypy src/expd/"
+
+[tool.ruff]
+line-length=79
+include = ["src/expd/**/*.py", "tests/**/*.py"]
+exclude = [
+    "examples",
+    "build",
+    "src/expd/notebooks",
+]
+
+[tool.ruff.lint]
+ignore = [
+    "G004", # Logging statement uses f-string
+    "TCH001", # Move application import into a type-checking block
+    "D301", # Use r""" if any backslashes in a docstring
+    # TODO: we should fix these, and enable this rule
+    "PT011", # `pytest.raises(ValueError)` is too broad, set the `match` parameter or use a more specific exception
+]
+extend-select = [
+    # pyflakes
+    "F",
+    # pycodestyle
+    "E",
+    # warning
+    "W",
+    # flake8 builtin-variable-shadowing
+    "A001",
+    # flake8 builtin-argument-shadowing
+    "A002",
+    # flake8-unused-arguments
+    "ARG",
+    # flake8-bugbear
+    "B",
+    "ANN002", # missing-type-args
+    "ANN003", # missing-type-kwargs
+    "ANN201", # missing-return-type-undocumented-public-function
+    "ANN202", # missing-return-type-private-function
+    "ANN205", # missing-return-type-static-method
+    "ANN206", # missing-return-type-class-method
+    # isort
+    "I001",
+    # Enable entire ruff rule section
+    "ASYNC", # subset of flake8-async rules
+    "TCH", # Rules around TYPE_CHECKING blocks
+    "G", # flake8-logging-format rules
+    "LOG", # flake8-logging rules, most of them autofixable
+    "PT", # flake8-pytest-style rules
+    "TID25", # flake8-tidy-imports rules
+    # Per rule enables
+    # "RUF100", # Unused noqa (auto-fixable)
+    # We ignore more pydocstyle than we enable, so be more selective at what we enable
+    # "D101", # Missing docstring in public class
+    "D106",
+    # "D2",
+    "D3",
+    # "D400", # First line should end with a period
+    # "D401", # First line of docstring should be in imperative mood
+    "D402",
+    "D403",
+    "D412",
+    "D419",
+    "PGH004",  # Use specific rule codes when using noqa
+    "PGH005", # Invalid unittest.mock.Mock methods/attributes/properties
+    # "S101", # Checks use `assert` outside the test cases, test cases should be added into the exclusions
+    "B004", # Checks for use of hasattr(x, "__call__") and replaces it with callable(x)
+    "B006", # Checks for uses of mutable objects as function argument defaults.
+    "B017", # Checks for pytest.raises context managers that catch Exception or BaseException.
+    "B019", # Use of functools.lru_cache or functools.cache on methods can lead to memory leaks
+    "TRY002", # Prohibit use of `raise Exception`, use specific exceptions instead.
+]
+
+# Never try to fix `F401` (unused imports).
+unfixable = ["F401"]
+
+[tool.ruff.lint.per-file-ignores]
+"**/{tests}/*" = ["ANN201", "ANN202"]
+"dagger/*" = ["TID252"]
+
+[tool.ruff.lint.isort]
+required-imports = ["from __future__ import annotations"]
+combine-as-imports = true
+
+[tool.ruff.lint.flake8-type-checking]
+exempt-modules = ["typing", "typing_extensions"]
+
+[tool.ruff.format]
+docstring-code-format = true
+
+[tool.ruff.lint.flake8-tidy-imports]
+# Disallow all relative imports.
+ban-relative-imports = "all"
+
+[tool.ruff.lint.flake8-pytest-style]
+mark-parentheses = false
+fixture-parentheses = false
+
+[tool.mypy]
+strict = true
+exclude = [
+    'examples',
+    'tests',
+]
+warn_unused_ignores=false
+
+[[tool.mypy.overrides]]
+module= "expd.notebooks.*"
+ignore_errors = true
+
+[tool.pytest.ini_options]
+minversion = "6.0"
+addopts = "-ra -q -v"
+testpaths = [
+    "tests",
+]
+asyncio_mode = "auto"
+
+[tool.typos.default]
+extend-ignore-re = ["[0-9a-zA-Z]{43}"]
+
+[tool.black]
+line-length = 79
