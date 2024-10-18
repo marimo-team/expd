@@ -28,10 +28,12 @@ dev = [
     "typos~=1.23.6",
 ]
 
-
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
+
+[project.urls]
+homepage = "https://github.com/marimo-team/expd"
 
 [project.scripts]
 expd = "expd._cli:main"
