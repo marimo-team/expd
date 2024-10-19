@@ -11,8 +11,9 @@ from expd.dtypes.models import Model
 from expd.strategies.base import Strategy
 
 if TYPE_CHECKING:
-    from expd.dtypes.dtyping import AnnotatedType
     from numpy.typing import NDArray
+
+    from expd.dtypes.dtyping import AnnotatedType
 
 
 def _type_to_element(

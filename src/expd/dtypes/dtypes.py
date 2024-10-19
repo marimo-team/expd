@@ -26,7 +26,6 @@ from expd.strategies.uniform import ArrayUniform
 X = TypeVar("X")
 
 if TYPE_CHECKING:
-    import numpy as np
     from numpy.typing import NDArray
 
 

@@ -10,9 +10,9 @@ from expd.artifacts.protocols import NumpyProtocol
 from expd.strategies.base import Grid
 
 if TYPE_CHECKING:
-    from numpy.typing import NDArray
     import scipy.sparse as sp  # type: ignore
     import torch
+    from numpy.typing import NDArray
 
     ArrayT = TypeVar("ArrayT", NDArray[Any], torch.Tensor, sp.spmatrix)
 

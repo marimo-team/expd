@@ -47,7 +47,7 @@ def start_marimo(filepath: str, mode: Literal["edit", "run"]) -> None:
     envcopy = os.environ.copy()
     envcopy["PYTHONPATH"] = (
         os.path.join(os.getcwd(), "src")
-        + ":"
+        + os.pathsep
         + os.environ.get("PYTHONPATH", "")
     )
 
